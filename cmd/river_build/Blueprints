@@ -1,0 +1,11 @@
+bootstrap_go_binary {
+    name: "river_build",
+    deps: [
+        "blueprint",
+        "blueprint-bootstrap",
+    ],
+    srcs: [
+        "main.go",
+    ],
+    primaryBuilder: true,
+}
