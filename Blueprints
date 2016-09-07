@@ -1,3 +1,28 @@
 subdirs = [
   "cmd/*",
 ]
+
+bootstrap_go_package {
+    name: "river",
+    pkgPath: "github.com/konkers/river",
+    deps: [
+        "blueprint",
+    ],
+    srcs: [
+        "config.go",
+    ],
+    pluginFor: ["river_build"],
+}
+
+bootstrap_go_package {
+    name: "river-cc",
+    pkgPath: "github.com/konkers/river/cc",
+    deps: [
+        "blueprint",
+        "river",
+    ],
+    srcs: [
+        "cc/cc.go",
+    ],
+    pluginFor: ["river_build"],
+}
