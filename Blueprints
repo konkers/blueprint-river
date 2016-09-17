@@ -10,6 +10,7 @@ bootstrap_go_package {
     ],
     srcs: [
         "config.go",
+        "producers.go",
         "register.go",
     ],
     pluginFor: ["river_build"],
