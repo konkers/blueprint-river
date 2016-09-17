@@ -27,5 +27,5 @@ func NewConfig(srcDir, buildDir string) (Config, error) {
 func PathForModuleIntermediate(ctx blueprint.ModuleContext, paths ...string) string {
 	config := ctx.Config().(Config)
 	return filepath.Join(config.buildDir, "intermediates", ctx.ModuleDir(),
-		filepath.Join(paths...))
+		ctx.ModuleName(), filepath.Join(paths...))
 }

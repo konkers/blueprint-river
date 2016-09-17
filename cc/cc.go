@@ -2,6 +2,7 @@ package cc
 
 import (
 	"github.com/google/blueprint"
+	"github.com/google/blueprint/pathtools"
 
 	"github.com/konkers/river"
 )
@@ -13,9 +14,16 @@ var (
 
 	compile = pctx.StaticRule("compile",
 		blueprint.RuleParams{
-			Command:     "$ccCmd -o $out $in",
+			Command:     "$ccCmd -c -o $out $in",
 			CommandDeps: []string{"$ccCmd"},
 			Description: "Compile $out.",
+		})
+
+	link = pctx.StaticRule("link",
+		blueprint.RuleParams{
+			Command:     "$ccCmd -o $out $in",
+			CommandDeps: []string{"$ccCmd"},
+			Description: "Link $out.",
 		})
 )
 
@@ -37,9 +45,23 @@ func (b *binary) GenerateBuildActions(ctx blueprint.ModuleContext) {
 		binaryFile = river.PathForModuleIntermediate(ctx, name)
 	)
 
+	objFiles := make([]string, len(b.properties.Srcs))
+
+	for _, src := range b.properties.Srcs {
+		objName := pathtools.ReplaceExtension(src, "o")
+		objFile := river.PathForModuleIntermediate(ctx, objName)
+		objFiles = append(objFiles, objFile)
+
+		ctx.Build(pctx, blueprint.BuildParams{
+			Rule:    compile,
+			Outputs: []string{objFile},
+			Inputs:  b.properties.Srcs,
+		})
+	}
+
 	ctx.Build(pctx, blueprint.BuildParams{
-		Rule:    compile,
+		Rule:    link,
 		Outputs: []string{binaryFile},
-		Inputs:  b.properties.Srcs,
+		Inputs:  objFiles,
 	})
 }
