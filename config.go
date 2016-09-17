@@ -1,6 +1,7 @@
 package river
 
 import (
+	"fmt"
 	"path/filepath"
 	"runtime"
 
@@ -37,9 +38,9 @@ func (c *config) HostPrebuiltTag() string {
 
 	switch runtime.GOOS {
 	case "linux-":
-		tag = linux
+		tag = "linux"
 	case "darwin-":
-		tag = darwin
+		tag = "darwin"
 	default:
 		panic(fmt.Sprintf("Unknown host OS %s", runtime.GOOS))
 	}
@@ -50,6 +51,8 @@ func (c *config) HostPrebuiltTag() string {
 	default:
 		panic(fmt.Sprintf("Unknown host arch %s", runtime.GOARCH))
 	}
+
+	return tag
 }
 
 // Returns the root path of the specified prebuilt tool.
