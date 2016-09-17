@@ -85,12 +85,13 @@ func (c *common) GenerateBuildActions(ctx blueprint.ModuleContext) {
 	for _, src := range c.properties.Srcs {
 		objName := pathtools.ReplaceExtension(src, "o")
 		objFile := river.PathForModuleIntermediate(ctx, objName)
+		srcFile := river.PathForModuleSource(ctx, src)
 		c.objFiles = append(c.objFiles, objFile)
 
 		ctx.Build(pctx, blueprint.BuildParams{
 			Rule:    compile,
 			Outputs: []string{objFile},
-			Inputs:  c.properties.Srcs,
+			Inputs:  []string{srcFile},
 		})
 	}
 }

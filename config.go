@@ -32,6 +32,12 @@ func PathForModuleIntermediate(ctx blueprint.ModuleContext, paths ...string) str
 		ctx.ModuleName(), filepath.Join(paths...))
 }
 
+func PathForModuleSource(ctx blueprint.ModuleContext, paths ...string) string {
+	config := ctx.Config().(Config)
+	return filepath.Join(config.srcDir, ctx.ModuleDir(),
+		filepath.Join(paths...))
+}
+
 // Returns the prebuilt tag for the host (i.e darwin-x86_64).
 func (c *config) HostPrebuiltTag() string {
 	var tag string
