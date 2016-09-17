@@ -2,6 +2,7 @@ package river
 
 import (
 	"path/filepath"
+	"runtime"
 
 	"github.com/google/blueprint"
 )
@@ -28,4 +29,30 @@ func PathForModuleIntermediate(ctx blueprint.ModuleContext, paths ...string) str
 	config := ctx.Config().(Config)
 	return filepath.Join(config.buildDir, "intermediates", ctx.ModuleDir(),
 		ctx.ModuleName(), filepath.Join(paths...))
+}
+
+// Returns the prebuilt tag for the host (i.e darwin-x86_64).
+func (c *config) HostPrebuiltTag() string {
+	var tag string
+
+	switch runtime.GOOS {
+	case "linux-":
+		tag = linux
+	case "darwin-":
+		tag = darwin
+	default:
+		panic(fmt.Sprintf("Unknown host OS %s", runtime.GOOS))
+	}
+
+	switch runtime.GOARCH {
+	case "amd64":
+		tag += "x86_64"
+	default:
+		panic(fmt.Sprintf("Unknown host arch %s", runtime.GOARCH))
+	}
+}
+
+// Returns the root path of the specified prebuilt tool.
+func (c *config) HostPrebuiltRoot(tool string) string {
+	return filepath.Join(c.srcDir, "prebuilts", c.HostPrebuiltTag())
 }
