@@ -27,13 +27,17 @@ var (
 		})
 )
 
+func init() {
+	river.RegisterModuleType("cc_binary", binaryFactory)
+}
+
 type binary struct {
 	properties struct {
 		Srcs []string
 	}
 }
 
-func BinaryFactory() (blueprint.Module, []interface{}) {
+func binaryFactory() (blueprint.Module, []interface{}) {
 	module := new(binary)
 	properties := &module.properties
 	return module, []interface{}{properties}
