@@ -12,6 +12,9 @@ import (
 var (
 	pctx = blueprint.NewPackageContext("github.com/konkers/river/cc")
 
+	// TODO(konkers): Make this configurable.
+	testMainDep = "c_test"
+
 	// TODO(konkers): Replace with host/target specific config.
 	hostPrebuiltTag = pctx.VariableConfigMethod("hostPrebuiltTag",
 		river.Config.HostPrebuiltTag)
@@ -51,6 +54,9 @@ var (
 func init() {
 	river.RegisterModuleType("cc_binary", binaryFactory)
 	river.RegisterModuleType("cc_library", libraryFactory)
+	river.RegisterModuleType("cc_test", testFactory)
+
+	river.RegisterBottomUpMutator("testDepsMutator", testDepsMutator)
 }
 
 type common struct {
@@ -79,6 +85,10 @@ type library struct {
 	libraryFile string
 }
 
+type test struct {
+	binary
+}
+
 func binaryFactory() (blueprint.Module, []interface{}) {
 	b := new(binary)
 	return b, []interface{}{&b.common.properties}
@@ -87,6 +97,11 @@ func binaryFactory() (blueprint.Module, []interface{}) {
 func libraryFactory() (blueprint.Module, []interface{}) {
 	l := new(library)
 	return l, []interface{}{&l.common.properties, &l.properties}
+}
+
+func testFactory() (blueprint.Module, []interface{}) {
+	t := new(test)
+	return t, []interface{}{&t.common.properties}
 }
 
 func (c *common) GenerateBuildActions(ctx blueprint.ModuleContext) {
@@ -153,4 +168,14 @@ func (l *library) GenerateBuildActions(ctx blueprint.ModuleContext) {
 
 func (l *library) LibraryFileName() string {
 	return l.libraryFile
+}
+
+func (t *test) GenerateBuildActions(ctx blueprint.ModuleContext) {
+	t.binary.GenerateBuildActions(ctx)
+}
+
+func testDepsMutator(ctx blueprint.BottomUpMutatorContext) {
+	if _, ok := ctx.Module().(*test); ok {
+		ctx.AddDependency(ctx.Module(), nil, testMainDep)
+	}
 }
