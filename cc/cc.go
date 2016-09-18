@@ -1,6 +1,8 @@
 package cc
 
 import (
+	"strings"
+
 	"github.com/google/blueprint"
 	"github.com/google/blueprint/pathtools"
 
@@ -11,18 +13,21 @@ var (
 	pctx = blueprint.NewPackageContext("github.com/konkers/river/cc")
 
 	// TODO(konkers): Replace with host/target specific config.
-	ccCmd = pctx.StaticVariable("ccCmd", "/usr/bin/gcc")
+	hostPrebuiltTag = pctx.VariableConfigMethod("hostPrebuiltTag",
+		river.Config.HostPrebuiltTag)
+	ccCmd = pctx.StaticVariable("ccCmd",
+		"./prebuilts/clang/$hostPrebuiltTag/bin/clang")
 	arCmd = pctx.StaticVariable("arCmd", "/usr/bin/ar")
 
 	// TODO(konkers): Implement include sandboxing.
-	cFlags = pctx.StaticVariable("cFlags", "-I.")
+	cFlags = pctx.StaticVariable("cFlags", "-I. -O3")
 
 	compile = pctx.StaticRule("compile",
 		blueprint.RuleParams{
-			Command:     "$ccCmd $cFlags -c -o $out $in",
+			Command:     "$ccCmd -cc1 $cFlags $extraCFlags -emit-obj -o $out $in",
 			CommandDeps: []string{"$ccCmd"},
 			Description: "Compile $out.",
-		})
+		}, "extraCFlags")
 
 	link = pctx.StaticRule("link",
 		blueprint.RuleParams{
@@ -46,7 +51,8 @@ func init() {
 
 type common struct {
 	properties struct {
-		Srcs []string
+		Srcs        []string
+		ExtraCFlags []string
 	}
 
 	objFiles []string
@@ -80,6 +86,10 @@ func libraryFactory() (blueprint.Module, []interface{}) {
 }
 
 func (c *common) GenerateBuildActions(ctx blueprint.ModuleContext) {
+	var (
+		extraCFlags = strings.Join(c.properties.ExtraCFlags, " ")
+	)
+
 	c.objFiles = make([]string, len(c.properties.Srcs))
 
 	for _, src := range c.properties.Srcs {
@@ -92,6 +102,9 @@ func (c *common) GenerateBuildActions(ctx blueprint.ModuleContext) {
 			Rule:    compile,
 			Outputs: []string{objFile},
 			Inputs:  []string{srcFile},
+			Args: map[string]string{
+				"extraCFlags": extraCFlags,
+			},
 		})
 	}
 }

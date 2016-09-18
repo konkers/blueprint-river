@@ -43,10 +43,10 @@ func (c *config) HostPrebuiltTag() string {
 	var tag string
 
 	switch runtime.GOOS {
-	case "linux-":
-		tag = "linux"
-	case "darwin-":
-		tag = "darwin"
+	case "linux":
+		tag = "linux-"
+	case "darwin":
+		tag = "darwin-"
 	default:
 		panic(fmt.Sprintf("Unknown host OS %s", runtime.GOOS))
 	}
