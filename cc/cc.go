@@ -24,9 +24,13 @@ var (
 
 	compile = pctx.StaticRule("compile",
 		blueprint.RuleParams{
-			Command:     "$ccCmd -cc1 $cFlags $extraCFlags -emit-obj -o $out $in",
+			Command: "$ccCmd -cc1 $cFlags $extraCFlags " +
+				"-MT $out -dependency-file ${out}.d " +
+				"-emit-obj -o $out $in",
 			CommandDeps: []string{"$ccCmd"},
 			Description: "Compile $out.",
+			Depfile:     "${out}.d",
+			Deps:        blueprint.DepsGCC,
 		}, "extraCFlags")
 
 	link = pctx.StaticRule("link",
