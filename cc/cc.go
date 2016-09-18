@@ -20,7 +20,7 @@ var (
 	arCmd = pctx.StaticVariable("arCmd", "/usr/bin/ar")
 
 	// TODO(konkers): Implement include sandboxing.
-	cFlags = pctx.StaticVariable("cFlags", "-I. -O3")
+	cFlags = pctx.StaticVariable("cFlags", "-I. -O3 -Wall -Werror")
 
 	compile = pctx.StaticRule("compile",
 		blueprint.RuleParams{
