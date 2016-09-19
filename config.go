@@ -61,7 +61,16 @@ func (c *config) HostPrebuiltTag() string {
 	return tag
 }
 
+func (c *config) TestRunner() string {
+	return filepath.Join(c.buildDir, "intermediates", "tools", "testing",
+		"test_runner", "test_runner", "test_runner")
+}
+
 // Returns the root path of the specified prebuilt tool.
 func (c *config) HostPrebuiltRoot(tool string) string {
 	return filepath.Join(c.srcDir, "prebuilts", c.HostPrebuiltTag())
+}
+
+func (c *config) PathForTestReport(binaryPath string) string {
+	return filepath.Join(c.buildDir, "test_reports", binaryPath+".json")
 }

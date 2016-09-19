@@ -1,6 +1,7 @@
 package cc
 
 import (
+	"path/filepath"
 	"strings"
 
 	"github.com/google/blueprint"
@@ -87,6 +88,8 @@ type library struct {
 
 type test struct {
 	binary
+
+	name string
 }
 
 func binaryFactory() (blueprint.Module, []interface{}) {
@@ -172,6 +175,19 @@ func (l *library) LibraryFileName() string {
 
 func (t *test) GenerateBuildActions(ctx blueprint.ModuleContext) {
 	t.binary.GenerateBuildActions(ctx)
+	t.name = filepath.Join(ctx.ModuleDir(), ctx.ModuleName())
+}
+
+func (t *test) TestType() string {
+	return "c_test"
+}
+
+func (t *test) TestName() string {
+	return t.name
+}
+
+func (t *test) TestBinaryPath() string {
+	return t.binaryFile
 }
 
 func testDepsMutator(ctx blueprint.BottomUpMutatorContext) {
